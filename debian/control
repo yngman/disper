@@ -1,17 +1,19 @@
 Source: disper
-Section: x11
+Section: utils
 Priority: optional
-Maintainer: Willem van Engen <dev-disper@willem.engen.nl>
-Build-Depends: debhelper (>= 4.1.67)
-Build-Depends-Indep: python-dev, python-support (>= 0.4)
-Standards-Version: 3.8.0
+Maintainer: Vincent Cheng <Vincentc1208@gmail.com>
+Build-Depends: debhelper (>= 8), python (>= 2.6.6-3~)
+Standards-Version: 3.9.2
+X-Python-Version: >= 2.3
 Homepage: http://willem.engen.nl/projects/disper/
+Vcs-Svn: svn://svn.debian.org/svn/collab-maint/deb-maint/disper/trunk
+Vcs-Browser: http://svn.debian.org/wsvn/collab-maint/deb-maint/disper/trunk
 
 Package: disper
 Architecture: all
-Depends: ${python:Depends}, libxrandr2, libx11-6
+Depends: ${misc:Depends}, ${python:Depends}, libxrandr2, libx11-6
 Recommends: libnotify-bin
-Description: Display switcher for attaching/detaching displays easily
+Description: display switcher for attaching/detaching displays easily
  No more headaches just before your presentation. Disper lets you add and
  remove display devices at the press of a button.  It detects what display
  devices are attached at the moment, and configures the display output
