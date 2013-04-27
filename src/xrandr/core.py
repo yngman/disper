@@ -300,6 +300,7 @@ class Output:
         modes = self.get_available_modes()
         if mode in range(len(modes)):
             self._mode = modes[mode].id
+            self._changes = self._changes | xrandr.CHANGES_MODE
             return
         raise RRError("Mode is not available")
 
@@ -309,6 +310,7 @@ class Output:
         mode = modes[self.get_preferred_mode()]
         if mode != None:
             self._mode = mode.id
+            self._changes = self._changes | xrandr.CHANGES_MODE
             return
         raise RRError("Preferred mode is not available")
 
@@ -466,6 +468,17 @@ class Crtc:
             if not output in self._outputs: return True
             if output.has_changed(): return True
         return False
+
+    def fits_size(self, width, height):
+        """Checks if the active configuration fits within the given 
+           dimensions"""
+        current = self._info.contents
+        if not current.mode: return True
+        mode = self._screen.get_mode_by_xid(current.mode)
+        if current.x + get_mode_width(mode, current.rotation) > width or \
+           current.y + get_mode_height(mode, current.rotation) > height:
+            return False
+        return True
 
 class Screen:
     def __init__(self, dpy, screen=-1):
@@ -814,18 +827,18 @@ class Screen:
                 #FIXME: Take a look at the pick_crtc code in xrandr.c
                 raise RRError("There is no matching crtc for the output")
 
+        # Disable any crtcs whose size won't fit the new one
+        for crtc in self.crtcs:
+            if not crtc.fits_size(self._width, self._height):
+                crtc.disable()
+
+        self.set_size(self._width, self._height,
+                      self._width_mm, self._height_mm)
+
         # Apply stored changes of crtcs
         for crtc in self.crtcs:
             if crtc.has_changed(): 
                 crtc.apply_changes()
-        
-        # Seems that this line should go here, because:
-        # "All active monitors must be configured to display a
-        # subset of the specified size, else a Match error results."
-        # (from XrandR protocol specification, 
-        # http://cgit.freedesktop.org/xorg/proto/randrproto/tree/randrproto.txt)
-        self.set_size(self._width, self._height,
-                      self._width_mm, self._height_mm)
 
     def apply_config(self):
         """Used for instantly applying RandR 1.0 changes"""
@@ -850,8 +863,7 @@ class Screen:
             if not relative or not relative._mode:
                 output._x = 0
                 output._y = 0
-                output._changes = output._changes | xrandr.CHANGES_POSITION
-            if output._relation == xrandr.RELATION_LEFT_OF:
+            elif output._relation == xrandr.RELATION_LEFT_OF:
                 output._y = relative._y + output._relation_offset
                 output._x = relative._x - \
                             get_mode_width(mode, output._rotation)
@@ -871,7 +883,7 @@ class Screen:
                 output._y = relative._y + output._relation_offset
                 output._x = relative._x + output._relation_offset
             output._changes = output._changes | xrandr.CHANGES_POSITION
-        # Normalize the postions so to the upper left cornor of all outputs 
+        # Normalize the positions so to the upper left corner of all outputs 
         # is at 0,0
         min_x = 32768
         min_y = 32768
@@ -879,11 +891,12 @@ class Screen:
             if output._mode == None: continue
             if output._x < min_x: min_x = output._x
             if output._y < min_y: min_y = output._y
-        for output in self.get_outputs():
-            if output._mode == None: continue
-            output._x -= min_x
-            output._y -= min_y
-            output._changes = output._changes | xrandr.CHANGES_POSITION
+        if min_x != 0 or min_y != 0:
+            for output in self.get_outputs():
+                if output._mode == None: continue
+                output._x -= min_x
+                output._y -= min_y
+                output._changes = output._changes | xrandr.CHANGES_POSITION
 
     def _calculate_size(self):
         """Recalculate the pixel and physical size of the screen so that

@@ -30,7 +30,7 @@ class Disper:
 
     # static information
     name = 'disper'
-    version = '0.3.0'
+    version = '0.3.1'
     prefix = build.prefix
     prefix_share = build.prefix_share
 
@@ -41,9 +41,10 @@ class Disper:
     args = None             # parsed arguments
 
     # real work
-    switcher = None         # switcher object
+    _switcher = None        # switcher object, see Disper.switcher()
     plugins = None          # plugins object
     log = None
+    conffile = None         # last configuration file read
 
     def __init__(self):
         self.log = logging.getLogger('disper')
@@ -51,17 +52,9 @@ class Disper:
         self._options_init()
         self.plugins = Plugins(self)
         #self.plugins.call('init') # can't really do here since list of plugins isn't read yet
-        self.switcher = Switcher()
         # add default options
         # TODO do initial parsing too so errors can be traced to config
-        conffile = os.path.join(os.getenv('HOME'), '.disper', 'config') 
-        if os.path.exists(conffile):
-            f = open(conffile, 'r')
-            opts = ''
-            for l in f.readlines():
-                opts += l.split('#',1)[0] + ' '
-            f.close()
-            self.options_append(shlex.split(opts))
+        self.options_append(self.config_read_default())
 
     def _options_init(self):
         '''initialize default command-line options'''
@@ -75,10 +68,11 @@ class Disper:
             help='be quiet and only show errors')
         self.add_option('-r', '--resolution', dest='resolution',  
             help='set resolution, e.g. "800x600", or "auto" to detect the display\'s preferred '+
-                 'resolution, or "max" to use the maximum resolution advertised. For extend it '+
-                 'is possible to enter a single resolution for all displays or a comma-separated '+
-                 'list of resolutions (one for each display). Beware that many displays advertise '+
-                 'resolutions they can not fully show, so "max" is not advised.')
+                 'resolution, "max" to use the maximum resolution advertised, or "off" to disable '+
+                 'the display entirely. For extend it is possible to enter a single resolution for '+
+                 'all displays or a comma-separated list of resolutions (one for each display). '+
+                 'Beware that many displays advertise resolutions they can not fully show, '+
+                 'so "max" is not advised.')
         self.add_option('-d', '--displays', dest='displays',
             help='comma-separated list of displays to operate on, or "auto" to detect; '+
                  'the first is the primary display.')
@@ -90,9 +84,10 @@ class Disper:
             help='flat-panel scaling mode: "default", "native", "scaled", "centered", or "aspect-scaled"')
         self.add_option('', '--plugins', dest='plugins',
             help='comma-separated list of plugins to enable. Special names: "user" for all user plugins '+
-                 'in ~/.disper/hooks; "all" for all plugins found; "none" for no plugins.')
-        self.add_option('', '--cycle-stages', dest='cycle_stages',
-            help='colon-separated list command-line arguments to cycle through')
+                 'in %s/hooks; "all" for all plugins found; "none" for no plugins.'%(
+                 os.environ.get('XDG_CONFIG_HOME', os.path.join('~', '.config', 'disper'))))
+        self.add_option('', '--cycle-stages', dest='cycle_stages', default='-c:-s:-S',
+            help='colon-separated list command-line arguments to cycle through; "-S:-c:-s" by default')
 
         group = optparse.OptionGroup(self.parser, 'Actions',
             'Select exactly one of the following actions')
@@ -170,9 +165,33 @@ class Disper:
         self.options.plugins = map(lambda x: x.strip(), self.options.plugins.split(','))
         if self.options.displays != 'auto':
             self.options.displays = map(lambda x: x.strip(), self.options.displays.split(','))
-        if self.options.resolution not in ['auto', 'max']:
+        if self.options.resolution not in ['auto', 'max', 'off']:
             self.options.resolution = map(lambda x: x.strip(), self.options.resolution.split(','))
         self.plugins.set_enabled(self.options.plugins)
+
+    def config_read_default(self):
+        '''Return default options from configuration files'''
+        # Read old-style and XDG-style configuration files
+        home = os.environ.get('HOME', '/')
+        xdg_config_dirs = [os.path.join(home, '.disper')] + \
+                          [os.environ.get('XDG_CONFIG_HOME', os.path.join(home, '.config', 'disper'))] + \
+                          os.environ.get('XDG_CONFIG_DIRS', '/etc/xdg/disper').split(':')
+        xdg_config_dirs = filter(lambda x: x and os.path.exists(x), xdg_config_dirs)
+        # since later configuration files override previous ones, reverse order of reading
+        # TODO allow override of action, since multiple actions would now conflict
+        xdg_config_dirs = reversed(xdg_config_dirs)
+        opts = ''
+        for d in xdg_config_dirs:
+            conffile = os.path.join(d, 'config')
+            if not os.path.exists(conffile): continue
+            f = open(conffile, 'r')
+            opts = ''
+            for l in f.readlines():
+                opts += l.split('#',1)[0] + ' '
+            f.close()
+            # remember which configuration file was read last
+            self.conffile = conffile
+        return shlex.split(opts)
 
     def switch(self):
         '''Switch to configuration as specified in the options'''
@@ -182,12 +201,8 @@ class Disper:
             self.parser.print_help()
             raise SystemExit(2)
         if 'single' in self.options.actions:
-            if self.options.displays != 'auto':
-                self.log.warning('specified displays ignored for single')
             self.switch_primary()
         elif 'secondary' in self.options.actions:
-            if self.options.displays != 'auto':
-                self.log.warning('specified displays ignored for secondary')
             self.switch_secondary()
         elif 'clone' in self.options.actions:
             self.switch_clone()
@@ -203,11 +218,11 @@ class Disper:
             # list displays with resolutions
             displays = self.options.displays
             if displays == 'auto':
-                displays = self.switcher.get_displays()
+                displays = self.switcher().get_displays()
             for disp in displays:
-                res = self.switcher.get_resolutions_display(disp)
+                res = self.switcher().get_resolutions_display(disp)
                 res.sort()
-                print 'display %s: %s'%(disp, self.switcher.get_display_name(disp))
+                print 'display %s: %s'%(disp, self.switcher().get_display_name(disp))
                 print ' resolutions: '+str(res)
         else:
             self.log.critical('program error, unrecognised action: '+', '.join(self.options.actions))
@@ -216,18 +231,28 @@ class Disper:
     def switch_primary(self, res=None):
         '''Only enable primary display.
            @param res resolution to use; or 'auto' for default or None for option'''
-        return self.switch_single(self.switcher.get_primary_display())
+        if self.options.displays and self.options.displays != 'auto':
+            return self.switch_single(self.options.displays[0])
+        else:
+            return self.switch_single(self.switcher().get_primary_display())
 
     def switch_secondary(self, res=None):
         '''Only enable secondary display.
            @param res resolution to use; or 'auto' for default or None for option'''
-        primary = self.switcher.get_primary_display()
-        try:
-            display = [x for x in self.switcher.get_displays() if x != primary][0]
-        except IndexError:
-            self.log.critical('No secondary display found, falling back to primary.')
-            return self.switch_single(primary, res)
-        return self.switch_single(display, res)
+        if self.options.displays and self.options.displays != 'auto':
+            if len(self.options.displays)>=2:
+                return self.switch_single(self.options.displays[1])
+            else:
+                self.log.critical('No secondary display found, falling back to primary.')
+                return self.switch_single(self.options.displays[0])
+        else:
+            primary = self.switcher().get_primary_display()
+            try:
+                display = [x for x in self.switcher().get_displays() if x != primary][0]
+            except IndexError:
+                self.log.critical('No secondary display found, falling back to primary.')
+                return self.switch_single(primary, res)
+            return self.switch_single(display, res)
 
     def switch_single(self, display=None, res=None):
         '''Only enable one display.
@@ -235,7 +260,7 @@ class Disper:
            @param res resolution to use; or 'auto' for default or None for option'''
         if not display: display = self.options.displays
         if display == 'auto':
-            display = self.switcher.get_primary_display()
+            display = self.switcher().get_primary_display()
         elif isinstance(display, list) and len(display)>1:
             self.log.warning('single output requested but multiple specified; using first one')
             display = display[0]
@@ -245,11 +270,12 @@ class Disper:
     def switch_clone(self, displays=None, res=None):
         '''Clone displays.
            @param displays list of displays; or 'auto' for default or None for option
-           @param res resolution; or 'auto' for default, 'max' for max or None for option'''
+           @param res resolution; or 'auto' for default, 'max' for max, 'off' to disable
+                  the display, 'none' or None for option'''
         # figure out displays
         if not displays: displays = self.options.displays
         if displays == 'auto':
-            displays = self.switcher.get_displays()
+            displays = self.switcher().get_displays()
             self.log.info('auto-detected displays: '+', '.join(displays))
         else:
             self.log.info('using specified displays: '+', '.join(displays))
@@ -259,8 +285,8 @@ class Disper:
             if type(res)==list or type(res)==tuple:
                 if len(res) != 1: raise TypeError('need single resolution for clone')
                 res = res[0]
-        if res == 'auto' or res == 'max':
-            r = self.switcher.get_resolutions(displays).common()
+        if res in ['auto', 'max']:
+            r = self.switcher().get_resolutions(displays).common()
             if len(r)==0:
                 self.log.critical('displays share no common resolution')
                 raise SystemExit(1)
@@ -270,7 +296,7 @@ class Disper:
         else:
             res = Resolution(res)
         # and switch
-        result = self.switcher.switch_clone(displays, res)
+        result = self.switcher().switch_clone(displays, res)
         self.plugins.set_layout_clone(displays, res)
         self.plugins.call('switch')
         return result
@@ -283,7 +309,7 @@ class Disper:
         # figure out displays
         if not displays: displays = self.options.displays
         if displays == 'auto':
-            displays = self.switcher.get_displays()
+            displays = self.switcher().get_displays()
             self.log.info('auto-detected displays: '+', '.join(displays))
         else:
             self.log.info('using specified displays: '+', '.join(displays))
@@ -291,13 +317,13 @@ class Disper:
         if not ress: ress = self.options.resolution
         if ress == 'max':     # max resolution for each
             # override auto-detection weights and get highest resolution
-            ress = self.switcher.get_resolutions(displays)
+            ress = self.switcher().get_resolutions(displays)
             for rl in ress.values():
                 for r in rl: r.weight = 0
             ress = ress.select()
             self.log.info('maximum resolutions for displays: '+str(ress))
         elif ress == 'auto':  # use preferred resolution for each
-            ress = self.switcher.get_resolutions(displays).select()
+            ress = self.switcher().get_resolutions(displays).select()
             self.log.info('preferred resolutions for displays: '+str(ress))
         else:                       # list of resolutions specified
             ress = ResolutionSelection(ress, displays)
@@ -310,24 +336,31 @@ class Disper:
         # figure out direction
         if not direction: direction = self.options.direction
         # and switch
-        result = self.switcher.switch_extend(displays, direction, ress)
+        result = self.switcher().switch_extend(displays, direction, ress)
         self.plugins.set_layout_extend(displays, direction, ress)
         self.plugins.call('switch')
         return result
 
     def export_config(self):
-        return self.switcher.export_config()
+        return self.switcher().export_config()
 
     def import_config(self, data):
-        result = self.switcher.import_config(data)
+        result = self.switcher().import_config(data)
         self.plugins.call('switch')
         return result
 
     def _cycle(self, stages):
         # read last state
         stage = 0
-        disperconf = os.path.join(os.getenv('HOME'), '.disper')
+        disperconf = None
+        # TODO use X root window hint instead of file (which doesn't adhere to XDG)
+        if self.conffile:
+            disperconf = os.path.dirname(self.conffile)
+        else:
+            home = os.environ.get('HOME', '/')
+            disperconf = os.environ.get('XDG_CONFIG_HOME', os.path.join(home, '.config', 'disper'))
         statefile = os.path.join(disperconf, 'last_cycle_stage')
+        self.log.debug('Cycle state file: '+statefile)
         if os.path.exists(statefile):
             f = open(statefile, 'r')
             stage = int(f.readline())
@@ -342,10 +375,20 @@ class Disper:
         finally:
             # write new state to file; do it here to make sure that a
             # failing configuration doesn't block the cycling
-            if not os.path.exists(disperconf): os.mkdir(disperconf)
+            if not os.path.exists(disperconf):
+                self.log.info('Creating disper configuration directory for statefile: '+disperconf)
+                os.mkdir(disperconf)
             f = open(statefile, 'w')
             f.write(str(stage)+'\n')
             f.close()
+
+    def switcher(self):
+        '''Return switcher object (singleton).
+        This is implemented as a method, so that it can be created only when
+        needed to avoid errors when displaying help.'''
+        if not self._switcher:
+            self._switcher = Switcher()
+        return self._switcher
 
 
 def main():

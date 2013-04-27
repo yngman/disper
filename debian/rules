@@ -2,3 +2,9 @@
 
 %:
 	dh $@ --with python2
+
+override_dh_auto_build:
+	$(MAKE) PREFIX=/usr DESTDIR=$(CURDIR)/debian/disper
+
+override_dh_auto_install:
+	$(MAKE) install PREFIX=/usr DESTDIR=$(CURDIR)/debian/disper
