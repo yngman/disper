@@ -1,2 +1,2 @@
 version=3
-http://willem.engen.nl/projects/disper/ http://ppa.launchpad.net/disper-dev/ppa/ubuntu/pool/main/d/disper/disper_(.*).tar.gz
+http://willem.engen.nl/projects/disper/ http://ppa.launchpad.net/disper-dev/ppa/ubuntu/pool/main/d/disper/disper_(.*)\.(?:tar\.(?:gz|bz2|xz))
