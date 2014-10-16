@@ -1,3 +1,9 @@
+disper (0.3.1-2) UNRELEASED; urgency=medium
+
+  * Update email address.
+
+ -- Vincent Cheng <vcheng@debian.org>  Wed, 15 Jan 2014 13:48:03 -0800
+
 disper (0.3.1-1) unstable; urgency=low
 
   * New upstream release.
@@ -7,7 +13,7 @@ disper (0.3.1-1) unstable; urgency=low
   * Update Standards version to 3.9.4, no changes required.
   * Update dh compat level from 8 to 9.
 
- -- Vincent Cheng <Vincentc1208@gmail.com>  Sat, 27 Apr 2013 01:08:32 -0700
+ -- Vincent Cheng <Vincentc1208@gmail.com>  Mon, 06 May 2013 01:46:19 -0700
 
 disper (0.3.0-1) unstable; urgency=low
 
