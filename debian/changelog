@@ -1,8 +1,11 @@
 disper (0.3.1-2) UNRELEASED; urgency=medium
 
+  * Move maintainership of package to the Python Applications Packaging Team
+    <python-apps-team@lists.alioth.debian.org>.
+    - Add myself to Uploaders.
   * Update email address.
 
- -- Vincent Cheng <vcheng@debian.org>  Wed, 15 Jan 2014 13:48:03 -0800
+ -- Vincent Cheng <vcheng@debian.org>  Thu, 16 Oct 2014 00:18:16 -0700
 
 disper (0.3.1-1) unstable; urgency=low
 
