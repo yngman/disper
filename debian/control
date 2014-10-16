@@ -1,13 +1,14 @@
 Source: disper
 Section: utils
 Priority: optional
-Maintainer: Vincent Cheng <Vincentc1208@gmail.com>
+Maintainer: Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
+Uploaders: Vincent Cheng <vcheng@debian.org>
 Build-Depends: debhelper (>= 9), python (>= 2.6.6-3~)
-Standards-Version: 3.9.4
+Standards-Version: 3.9.6
 X-Python-Version: >= 2.3
 Homepage: http://willem.engen.nl/projects/disper/
-Vcs-Svn: svn://anonscm.debian.org/collab-maint/deb-maint/disper/trunk
-Vcs-Browser: http://anonscm.debian.org/viewvc/collab-maint/deb-maint/disper/trunk
+Vcs-Svn: svn://anonscm.debian.org/python-apps/packages/disper/trunk/
+Vcs-Browser: http://anonscm.debian.org/viewvc/python-apps/packages/disper/trunk/
 
 Package: disper
 Architecture: all

@@ -1,3 +1,13 @@
+disper (0.3.1-2) unstable; urgency=medium
+
+  * Move maintainership of package to the Python Applications Packaging Team
+    <python-apps-team@lists.alioth.debian.org>.
+    - Add myself to Uploaders.
+  * Update email address.
+  * Bump standards version to 3.9.6, no changes required.
+
+ -- Vincent Cheng <vcheng@debian.org>  Thu, 16 Oct 2014 00:18:16 -0700
+
 disper (0.3.1-1) unstable; urgency=low
 
   * New upstream release.
@@ -7,7 +17,7 @@ disper (0.3.1-1) unstable; urgency=low
   * Update Standards version to 3.9.4, no changes required.
   * Update dh compat level from 8 to 9.
 
- -- Vincent Cheng <Vincentc1208@gmail.com>  Sat, 27 Apr 2013 01:08:32 -0700
+ -- Vincent Cheng <Vincentc1208@gmail.com>  Mon, 06 May 2013 01:46:19 -0700
 
 disper (0.3.0-1) unstable; urgency=low
 
