@@ -1,0 +1,16 @@
+disper (0.3.1-1) unstable; urgency=low
+
+  * New upstream release.
+    - Add support for nvidia >= 302.07 + XRandR 1.2. (Closes: #682600;
+      LP: #662760)
+  * Fix unversioned-copyright-format-uri and vcs-field-not-canonical.
+  * Update Standards version to 3.9.4, no changes required.
+  * Update dh compat level from 8 to 9.
+
+ -- Vincent Cheng <Vincentc1208@gmail.com>  Mon, 06 May 2013 01:46:19 -0700
+
+disper (0.3.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #634241)
+
+ -- Vincent Cheng <Vincentc1208@gmail.com>  Sun, 17 Jul 2011 22:30:03 -0700
