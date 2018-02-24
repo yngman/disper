@@ -1,0 +1,27 @@
+BZR merge-modified list format 1
+file_id: main.py-20081121122646-33iwltdcu28l13iv-2
+hash: 3127bda88afcfc5d9c4220edff7fa97ed00b29c0
+
+file_id: switcher_nvidia.py-20081121143332-4u664hm3a2q6ih9t-1
+hash: 588b069a72222f9e11c85eebc63b68ce0804f703
+
+file_id: resolutions.py-20081203171835-vpw95vzn547d061l-1
+hash: 9ca6ad82ecc7169eb229fae24ceeecc2605a4329
+
+file_id: swxrandr.py-20081204001612-zh63yeia35soyaqd-1
+hash: d71681444bb2bfed3de0a343db9e3424202825e4
+
+file_id: __init__.py-20100507220450-ljovh5lv7jimn66d-2
+hash: b37ac69616b74f7c46a6e66f126453014403c68d
+
+file_id: plugin.py-20100507220450-ljovh5lv7jimn66d-6
+hash: 3f12b4abb6f3b1188700cfcbba90b8146b71acf7
+
+file_id: __init__.py-20081124131628-34xenh85s8spfsf2-1
+hash: 1c2d195ef077e3eb4d09becb86f96c3dec879043
+
+file_id: disper.in-20081124144925-j4qv8ptrtta20sbs-2
+hash: 9657cc96422f3f00ca1156961a2c4ecdb6ba4e20
+
+file_id: hook.py-20100507220450-ljovh5lv7jimn66d-3
+hash: 4eda986209e2be489aae4aed3785b1e46cb88120
