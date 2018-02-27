@@ -1,3 +1,9 @@
+disper (0.3.1-3) UNRELEASED; urgency=medium
+
+  * d/copyright: Use https protocol in Format field
+
+ -- Ondřej Nový <onovy@debian.org>  Tue, 27 Feb 2018 21:14:08 +0100
+
 disper (0.3.1-2) unstable; urgency=medium
 
   * Move maintainership of package to the Python Applications Packaging Team
