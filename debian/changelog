@@ -1,3 +1,9 @@
+disper (0.3.1-4) UNRELEASED; urgency=high
+
+  * Patch as per AUR maintainer, fixing segfaultS
+
+ -- Gunnar Yngman <gunnar.yngman@farmbio.uu.se>  Wed, 27 Mar 2019 23:02 +0100
+
 disper (0.3.1-3) UNRELEASED; urgency=medium
 
   * d/copyright: Use https protocol in Format field
