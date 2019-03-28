@@ -1,5 +1,5 @@
 See [the Wiki](https://github.com/yngman/disper/wiki) for how-to fix it, or below for
-[change](#patched) as well as [instructions](#ubuntu) for installing on Ubuntu.
+[Patched and Pushed](#patched-and-pushed) as well as [Ubuntu Instructions](#ubuntu-instructions) for installing on Ubuntu.
 
 # Disper
 
@@ -44,7 +44,7 @@ for all to enjoy.
 
 - Alex Peyser <peyser.alex.public@gmail.com>
 
-# Patched and Pushed {#patched}
+# Patched and Pushed
 
 The source (Git version) of the Ubuntu package (Debian upstream) is here:
 
@@ -60,7 +60,7 @@ See discussion on AUR, <https://aur.archlinux.org/packages/disper/>
 
 - Gunnar Yngman <gunnar.yngman@farmbio.uu.se>
 
-## Ubuntu (18.04) Instructions {#ubuntu}
+## Ubuntu Instructions
 
 Uninstall the Ubuntu package (if you had that installed),
 
