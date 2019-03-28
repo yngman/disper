@@ -1,3 +1,6 @@
+See [the Wiki](https://github.com/yngman/disper/wiki) for how-to fix it, or below for
+[change](#patched) as well as [instructions](#ubuntu) for installing on Ubuntu.
+
 # Disper
 
 Disper is an on-the-fly display switch utility. It is intended to be used just
@@ -30,7 +33,7 @@ http://willem.engen.nl/projects/disper/
 
 - Willem van Engen <dev-disper@willem.engen.nl>
 
-# Orphan and forked
+# Orphan and Forked
 
 As of 2018 (seems 2013), this poor package has seemed to lost an owner,
 and an undefined return value for a ctypes function made all calls fail on most
@@ -41,7 +44,7 @@ for all to enjoy.
 
 - Alex Peyser <peyser.alex.public@gmail.com>
 
-# Patched and pushed
+# Patched and Pushed {#patched}
 
 The source (Git version) of the Ubuntu package (Debian upstream) is here:
 
@@ -55,7 +58,9 @@ This repository is *just a merge* of the Debian upstream with the AUR packaged a
 
 See discussion on AUR, <https://aur.archlinux.org/packages/disper/>
 
-## Ubuntu (18.04) Instructions
+- Gunnar Yngman <gunnar.yngman@farmbio.uu.se>
+
+## Ubuntu (18.04) Instructions {#ubuntu}
 
 Uninstall the Ubuntu package (if you had that installed),
 
@@ -79,5 +84,3 @@ sudo make install
 ~~~
 
 Yeah, that's all that is required. For me at least.
-
-- Gunnar Yngman <gunnar.yngman@farmbio.uu.se>
